@@ -2,7 +2,7 @@
 
 Use your volumio as a picture frame when idle. 
 
-* Detects activity on user input and as MPD is playing
+* Detects activity on user input and as Volumio is playing
 * Scales images to screen, with correct orientation
 
 # Usage
