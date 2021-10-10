@@ -1,7 +1,12 @@
 # Volumio Picture Frame
 
-Use your volumio as a picture frame when idle.
+Use your volumio as a picture frame when idle. 
 
-> sudo apt-get install fbi
+* Detects activity on user input and as MPD is playing
+* Scales images to screen, with correct orientation
 
-> sudo screensaver.py &
+# Usage
+
+> sudo apt-get install python-pygame python-pil
+
+> sudo pictureframe.py &
