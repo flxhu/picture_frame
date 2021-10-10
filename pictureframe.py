@@ -8,6 +8,7 @@ import pygame
 import signal
 import shlex
 import socket
+import urllib, json
 import random
 from PIL import Image, ExifTags
 from collections import deque
@@ -16,7 +17,7 @@ SHOW_AFTER_SECS=60
 NEXT_IMAGE_AFTER_SECS=20
 IMAGE_DIR="/home/volumio/Wallpaper/"
 EXTENSIONS=['.jpg', '.jpeg', '.png']
-MPD_ENDPOINT=("127.0.0.1", 6600)
+VOLUMIO_STATUS_URL="http://volumio.local:3000/api/v1/getSystemInfo"
 
 class ActivityDetector(threading.Thread):
   def __init__(self):
@@ -30,18 +31,13 @@ class ActivityDetector(threading.Thread):
       f.read(1)
       self.last_activity = time.time()
 
-def get_mpd_status():
-  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def get_volumio_status():
   try:
-    s.connect(MPD_ENDPOINT)
-    s.recv(100)  # read version banner
-    s.send("status\n")
-    status = s.recv(1000)
-    return "state: play" in status
+    response = urllib.urlopen(VOLUMIO_STATUS_URL)
+    data = json.loads(response.read())
+    return data['state']['status'] == 'play'
   except Exception as e:
     print s, e
-  finally:
-    s.close()
 
 def get_next_image():
   dirs = deque()
@@ -123,20 +119,20 @@ if __name__ == "__main__":
   a.start()
 
   last_image_switch_secs = time.time()
-  last_mpd_activity = time.time()
+  last_player_activity = time.time()
   while True:
     time.sleep(1)
 
     now = time.time()
-    idle_for_secs = min(now - a.last_activity, now - last_mpd_activity)
+    idle_for_secs = min(now - a.last_activity, now - last_player_activity)
 
     if idle_for_secs < SHOW_AFTER_SECS:
       continue
 
-    mpd_is_playing = get_mpd_status()
-    if mpd_is_playing:
-      last_mpd_activity = time.time()
-      print "MPD is playing"
+    is_playing = get_volumio_status()
+    if is_playing:
+      last_player_activity = time.time()
+      print "Volumio is playing"
       continue   
 
     if now - last_image_switch_secs > NEXT_IMAGE_AFTER_SECS:
