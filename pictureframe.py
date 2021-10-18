@@ -18,6 +18,7 @@ NEXT_IMAGE_AFTER_SECS=20
 IMAGE_DIR="/home/volumio/Wallpaper/"
 EXTENSIONS=['.jpg', '.jpeg', '.png']
 VOLUMIO_STATUS_URL="http://volumio.local:3000/api/v1/getSystemInfo"
+DISPLAY_ON=False
 
 class ActivityDetector(threading.Thread):
   def __init__(self):
@@ -26,10 +27,13 @@ class ActivityDetector(threading.Thread):
     self.last_activity = 0
 
   def run(self):
-    f = open("/dev/input/event0", "r")
-    while True:
-      f.read(1)
-      self.last_activity = time.time()
+    try:
+      f = open("/dev/input/event0", "r")
+      while True:
+        f.read(1)
+        self.last_activity = time.time()
+    except Exception as e:
+      print "Error reading /dev/input/event0", e
 
 def get_volumio_status():
   try:
@@ -80,6 +84,8 @@ def get_orientation(filename):
       image.close()
 
 def display_next_image():
+  screen = display_enable()
+
   filename = get_next_image()
   angle = get_orientation(filename)
   print filename, angle
@@ -104,16 +110,28 @@ def display_next_image():
 
   screen.fill((0, 0, 0))
   screen.blit(picture, position) 
-  pygame.display.flip() 
+  pygame.display.flip()
+
+def display_enable():
+  global DISPLAY_ON
+  if not DISPLAY_ON:
+    pygame.display.init()
+    pygame.mouse.set_visible(False)
+    width = pygame.display.Info().current_w 
+    height = pygame.display.Info().current_h
+    screen = pygame.display.set_mode((width, height))
+    DISPLAY_ON=screen
+  return DISPLAY_ON
+
+def display_off():
+  global DISPLAY_ON
+  if DISPLAY_ON:
+    pygame.display.quit()
+    DISPLAY_ON=None
 
 if __name__ == "__main__":
   pygame.init()
   os.putenv('SDL_VIDEO_DRIVER', 'directfb')
-  pygame.display.init()
-  pygame.mouse.set_visible(False)
-  width = pygame.display.Info().current_w 
-  height = pygame.display.Info().current_h
-  screen = pygame.display.set_mode((width, height))
 
   a = ActivityDetector()
   a.start()
@@ -127,12 +145,13 @@ if __name__ == "__main__":
     idle_for_secs = min(now - a.last_activity, now - last_player_activity)
 
     if idle_for_secs < SHOW_AFTER_SECS:
+      display_off()
       continue
 
     is_playing = get_volumio_status()
     if is_playing:
+      display_off()
       last_player_activity = time.time()
-      print "Volumio is playing"
       continue   
 
     if now - last_image_switch_secs > NEXT_IMAGE_AFTER_SECS:
