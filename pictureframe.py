@@ -55,6 +55,8 @@ def get_next_image():
       for filename in files:
         if os.path.splitext(filename)[1].lower() in EXTENSIONS:
           found_files.append(os.path.join(root, filename))
+  if not found_files:
+    return None
   file_no = random.randint(0, len(found_files) - 1)
   print "Found", len(found_files), "files, returning no", file_no
   return found_files[file_no]
@@ -87,6 +89,9 @@ def display_next_image():
   screen = display_enable()
 
   filename = get_next_image()
+  if not filename:
+    return
+
   angle = get_orientation(filename)
   print filename, angle
   screen_width = pygame.display.Info().current_w 
