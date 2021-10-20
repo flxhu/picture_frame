@@ -41,7 +41,7 @@ def get_volumio_status():
     data = json.loads(response.read())
     return data['state']['status'] == 'play'
   except Exception as e:
-    print s, e
+    print "Exception on volumio status get", e
 
 def get_next_image():
   dirs = deque()
