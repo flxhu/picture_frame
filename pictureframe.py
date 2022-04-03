@@ -27,13 +27,15 @@ class ActivityDetector(threading.Thread):
     self.last_activity = 0
 
   def run(self):
-    try:
-      f = open("/dev/input/event0", "r")
-      while True:
-        f.read(1)
-        self.last_activity = time.time()
-    except Exception as e:
-      print "Error reading /dev/input/event0", e
+    while True:
+      try:
+        with open("/dev/input/event0", "r") as f:
+          while True:
+            f.read(1)
+            self.last_activity = time.time()
+      except Exception as e:
+        print "Error reading /dev/input/event0", e
+        continue
 
 def get_volumio_status():
   try:
