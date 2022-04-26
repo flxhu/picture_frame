@@ -1,0 +1,9 @@
+[Unit]
+Description=pictureframe
+
+[Service]
+Type=simple
+ExecStart=/opt/pictureframe.py
+
+[Install]
+WantedBy=multi-user.target
