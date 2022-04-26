@@ -20,6 +20,17 @@ EXTENSIONS=['.jpg', '.jpeg', '.png']
 VOLUMIO_STATUS_URL="http://volumio.local:3000/api/v1/getSystemInfo"
 DISPLAY_ON=False
 
+import signal
+def handler(signum, frame):
+    pass
+
+try:
+    signal.signal(signal.SIGHUP, handler)
+except AttributeError:
+    # Windows compatibility
+    pass
+
+
 class ActivityDetector(threading.Thread):
   def __init__(self):
     threading.Thread.__init__(self)
@@ -96,7 +107,7 @@ def display_next_image():
 
   angle = get_orientation(filename)
   print filename, angle
-  screen_width = pygame.display.Info().current_w 
+  screen_width = pygame.display.Info().current_w
   screen_height = pygame.display.Info().current_h
   picture = pygame.image.load(filename)
   if angle > 0:
@@ -159,7 +170,7 @@ if __name__ == "__main__":
     if is_playing:
       display_off()
       last_player_activity = time.time()
-      continue   
+      continue
 
     if now - last_image_switch_secs > NEXT_IMAGE_AFTER_SECS:
       last_image_switch_secs = now

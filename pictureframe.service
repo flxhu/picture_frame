@@ -1,9 +1,12 @@
 [Unit]
 Description=pictureframe
+After=multi-user.target
 
 [Service]
 Type=simple
+Restart=always
 ExecStart=/opt/pictureframe.py
+Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target
