@@ -134,6 +134,7 @@ def display_enable():
   global DISPLAY_ON
   if not DISPLAY_ON:
     pygame.display.init()
+    pygame.mixer.quit()
     pygame.mouse.set_visible(False)
     width = pygame.display.Info().current_w 
     height = pygame.display.Info().current_h
