@@ -56,23 +56,13 @@ def get_volumio_status():
   except Exception as e:
     print "Exception on volumio status get", e
 
-def get_next_image():
-  dirs = deque()
-  dirs.append(IMAGE_DIR)
-  found_files = []
-  while dirs:
-    current_dir = dirs.pop()
-    for root, subdirs, files in os.walk(current_dir):
-      for subdir in subdirs:
-         dirs.append(os.path.join(root, subdir))
+def image_list_generator():
+  while True:
+    for root, subdirs, files in os.walk(IMAGE_DIR, topdown=False):
+      print "Showing everything in", root, ", which has", len(files), "files"
       for filename in files:
         if os.path.splitext(filename)[1].lower() in EXTENSIONS:
-          found_files.append(os.path.join(root, filename))
-  if not found_files:
-    return None
-  file_no = random.randint(0, len(found_files) - 1)
-  print "Found", len(found_files), "files, returning no", file_no
-  return found_files[file_no]
+          yield os.path.join(root, filename)
 
 def get_orientation(filename):
   """
@@ -98,12 +88,8 @@ def get_orientation(filename):
     if image:
       image.close()
 
-def display_next_image():
+def display_next_image(filename):
   screen = display_enable()
-
-  filename = get_next_image()
-  if not filename:
-    return
 
   angle = get_orientation(filename)
   print filename, angle
@@ -127,7 +113,7 @@ def display_next_image():
   position = ((screen_width - width) / 2, (screen_height - height) / 2)
 
   screen.fill((0, 0, 0))
-  screen.blit(picture, position) 
+  screen.blit(picture, position)
   pygame.display.flip()
 
 def display_enable():
@@ -136,7 +122,7 @@ def display_enable():
     pygame.display.init()
     pygame.mixer.quit()
     pygame.mouse.set_visible(False)
-    width = pygame.display.Info().current_w 
+    width = pygame.display.Info().current_w
     height = pygame.display.Info().current_h
     screen = pygame.display.set_mode((width, height))
     DISPLAY_ON=screen
@@ -157,6 +143,7 @@ if __name__ == "__main__":
 
   last_image_switch_secs = time.time()
   last_player_activity = time.time()
+  image_list = image_list_generator()
   while True:
     time.sleep(1)
 
@@ -175,4 +162,4 @@ if __name__ == "__main__":
 
     if now - last_image_switch_secs > NEXT_IMAGE_AFTER_SECS:
       last_image_switch_secs = now
-      display_next_image()
+      display_next_image(next(image_list))
