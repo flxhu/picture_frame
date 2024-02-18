@@ -1,4 +1,4 @@
-# Volumio Picture Frame
+# Volumio and Moode Picture Frame
 
 Use your volumio as a picture frame when idle. 
 
@@ -8,7 +8,3 @@ Use your volumio as a picture frame when idle.
 # Setup
 
 > sudo install.sh
-
-> sudo systemctl start pictureframe
-
-> sudo systemctl enable pictureframe
