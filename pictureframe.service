@@ -3,6 +3,8 @@ Description=pictureframe
 After=multi-user.target
 
 [Service]
+ExecStartPre=/bin/sleep 30
+TimeoutStopSec=2
 Type=simple
 Restart=always
 ExecStart=/opt/pictureframe.py
