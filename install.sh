@@ -1,8 +1,8 @@
 #!/bin/bash
 
-apt-get install python-pil
+apt-get install python3-pygame
 cp -v pictureframe.py /opt/
 cp -v pictureframe.service /etc/systemd/system
 systemctl enable pictureframe
-systemctl start pictureframe
+systemctl restart pictureframe
 systemctl status pictureframe

@@ -16,11 +16,12 @@ from collections import deque
 os.environ["DISPLAY"] = ":0"
 SHOW_AFTER_SECS=60
 NEXT_IMAGE_AFTER_SECS=20
-IMAGE_DIR="/home/felix/wallpaper/"
+IMAGE_DIR="/home/felix/pictureframe/"
 EXTENSIONS=['.jpg', '.jpeg', '.png']
 VOLUMIO_STATUS_URL="http://volumio.local:3000/api/v1/getSystemInfo"
 DISPLAY_ON=False
 MPD_PORT=6600
+TOUCH_DEVICE='/dev/hidraw0'
 
 import signal
 def handler(signum, frame):
@@ -42,12 +43,13 @@ class ActivityDetector(threading.Thread):
   def run(self):
     while True:
       try:
-        with open("/dev/input/event0", "rb") as f:
+        with open(TOUCH_DEVICE, "rb") as f:
           while True:
             f.read(1)
             self.last_activity = time.time()
       except Exception as e:
         print("Error reading /dev/input/event0", e)
+        time.sleep(10)
         continue
 
 def get_volumio_status():
@@ -72,7 +74,7 @@ def image_list_generator():
   while True:
     for root, subdirs, files in os.walk(IMAGE_DIR, topdown=False):
       print("Showing everything in", root, ", which has", len(files), "files")
-      for filename in files:
+      for filename in sorted(files):
         if os.path.splitext(filename)[1].lower() in EXTENSIONS:
           yield os.path.join(root, filename)
 
